@@ -1,0 +1,94 @@
+version: "2"
+
+## NOTE NOTE! 
+# Because kafka needs to know it's own hostname, you either need to change it in this document (from kafka.local)
+## Or add kafka.local to your /etc/hosts file (and point it at 127.0.0.1).
+
+services:
+
+  # Main frontend
+  # Expose port with `- {PORT}:80` (i.e., your port goes on the left).
+  web-ui:
+    image: ponelat/petstore-kafka-web-ui:latest
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      CADDY_PORT: 80
+      PETS_HOST: "http://pets:80"
+      ADOPTIONS_HOST: "http://adoptions:80"
+      WEBSOCKET_HOST: "http://websocket:81"
+
+  # Secondary frontend, a CMAK app for looking at the Kafka cluster
+  # Note: You'll need to create a Cluster via its UI. Be sure to add 'zookeeper:2181' as the zookeeper host.
+  cmak:
+      image: ghcr.io/eshepelyuk/dckr/cmak-3.0.0.5:latest
+      restart: always
+      ports:
+        - "9000:9000"
+      environment:
+        ZK_HOSTS: "zookeeper:2181"
+      depends_on:
+        - zookeeper
+        - kafka
+
+  # Application Services
+  pets:
+    image: ponelat/petstore-kafka-pets:latest
+    restart: always
+    environment:
+      KAFKA_HOSTS: "kafka:9092"
+      DATA_BASEPATH: "/data"
+    volumes:
+      - "pets_data:/data"
+
+  adoptions:
+    image: ponelat/petstore-kafka-adoptions:latest
+    restart: always
+    environment:
+      KAFKA_HOSTS: "kafka:9092"
+      DATA_BASEPATH: "/data"
+    volumes:
+      - "adoptions_data:/data"
+
+  websocket:
+    image: ponelat/petstore-kafka-websocket:latest
+    restart: always
+    environment:
+      KAFKA_HOSTS: "kafka:9092"
+      DATA_BASEPATH: "/data"
+    volumes:
+      - "websocket_data:/data"
+
+
+  # Kafka services
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: docker.io/bitnami/kafka:3.2
+    volumes:
+      - "kafka_data:/bitnami"
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    hostname: kafka.local
+    depends_on:
+      - zookeeper
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+  pets_data:
+    driver: local
+  adoptions_data:
+    driver: local
+  websocket_data:
+    driver: local
