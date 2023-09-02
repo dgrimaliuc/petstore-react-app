@@ -1,23 +1,18 @@
 import create from "zustand";
-import { onMessage } from "./websocket";
+
 import { arrayToObject } from "./utils";
 
-interface AdoptionReason {
+export interface AdoptionReason {
   petId: string;
   message: string;
 }
-interface Adoption {
+export interface Adoption {
   id: string;
   status: "requested" | "pending" | "available" | "denied" | "approved";
   pets: string[];
+  location?: string;
   reasons?: AdoptionReason[];
 }
-
-const baseAdoption: Adoption = {
-  id: "",
-  status: "requested",
-  pets: [],
-};
 
 export class AdoptionsAPI {
   url: string = "";
@@ -52,7 +47,9 @@ export class AdoptionsAPI {
         "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ status }),
-    });
+    })
+      .then((res) => res.json())
+      .then((data) => data as Adoption);
   };
 
   requestAdoption = ({
@@ -68,8 +65,12 @@ export class AdoptionsAPI {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({ pets, location }),
-    });
+      body: JSON.stringify({ pets, location, status: "requested" }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        return data as Adoption;
+      });
   };
 }
 
@@ -106,41 +107,27 @@ const useStore = create<{
     }
   },
   changeStatus: async ({ id, status }) => {
-    try {
-      const adoptions = await api.changeStatus({ status, id });
-    } catch (e) {
-      console.error(e);
-      // TODO
-    }
+    const adoption = await api.changeStatus({ status, id });
+    set(() => ({
+      adoptions: {
+        ...useStore.getState().adoptions,
+        [adoption.id]: adoption,
+      },
+    }));
   },
   requestAdoptions: async ({ pets, location }) => {
     try {
-      const response = await api.requestAdoption({ pets, location });
-      const jsonData = await response.json();
-      await api.changeStatus({ status: "available", id: jsonData.id });
+      const adoption = await api.requestAdoption({ pets, location });
+      set(() => ({
+        adoptions: {
+          ...useStore.getState().adoptions,
+          [adoption.id]: adoption,
+        },
+      }));
     } catch (e) {
       console.error(e);
-      // TODO
     }
   },
 }));
-
-// // WebSocket connection
-// onMessage("adoptions.store", (json: any, websocket: WebSocket) => {
-//   if (json.type === "kafka" && json.topic.startsWith("adoptions.")) {
-//     useStore.setState((state) => {
-//       const adoption: Adoption = json.log;
-//       const oldAdoption = state.adoptions[adoption.id] || {};
-//       const newAdoption = { ...baseAdoption, ...oldAdoption, ...adoption };
-
-//       return {
-//         adoptions: {
-//           ...state.adoptions,
-//           [adoption.id]: newAdoption,
-//         },
-//       };
-//     });
-//   }
-// });
 
 export default useStore;

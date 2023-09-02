@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import usePetStore, { Pet } from "./pets.store";
+import usePetStore from "./pets.store";
 import useAdoptionsStore from "./adoptions.store";
 import randomName from "./pets.name";
 import { Button } from "./UI";
@@ -25,6 +25,8 @@ function useSelected(): [Set<string>, (str: string) => void, () => void] {
 }
 
 export default function Pets() {
+  // Uncomment for bug
+  // const adoptions = useAdoptionsStore((s) => s.adoptions);
   const fetchPets = usePetStore((s) => s.fetchPets);
   const addPet = usePetStore((s) => s.addPet);
   const pets = usePetStore((s) => s.pets);
@@ -33,14 +35,16 @@ export default function Pets() {
 
   useEffect(() => {
     fetchPets({ location, status: "!adopted" });
-  }, [fetchPets, location]);
+  }, [fetchPets, location]); //, adoptions
 
-  const rows = useCallback(() => {
+  const rows = () => {
     return Object.values(pets).reverse() || [];
-  }, [pets]);
-
+  };
   const _requestAdoption = useAdoptionsStore((s) => s.requestAdoptions);
   const requestAdoption = () => {
+    Array.from(selectedRows).forEach((element) => {
+      pets[element].status = "onhold";
+    });
     deselectAll();
     _requestAdoption({ pets: Array.from(selectedRows), location });
   };

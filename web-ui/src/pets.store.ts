@@ -1,5 +1,4 @@
 import create from "zustand";
-import { onMessage } from "./websocket";
 import { arrayToObject } from "./utils";
 
 export interface Pet {
@@ -13,7 +12,7 @@ export class PetsAPI {
   public url: string;
 
   constructor() {
-    this.url = "http://localhost:9092/api/pets"; //http://localhost:9092/api/pets https://petstore-kafka.swagger.io/api/pets
+    this.url = "http://localhost:9092/api/pets";
   }
 
   getPets = async ({

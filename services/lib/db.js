@@ -1,5 +1,4 @@
 const FlatFile = require("flat-file-db");
-const path = require("path");
 
 class FlatDb {
   constructor(file) {
@@ -19,7 +18,7 @@ class FlatDb {
     return this.db.del(key);
   }
 
-  dbClear(key) {
+  dbClear() {
     return this.db.clear();
   }
 

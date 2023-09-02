@@ -2,41 +2,21 @@
 const {
   KafkaSink,
   FlatDB: { queryObjToMatchQuery },
+  FlatDB,
 } = require("../lib");
-
-const express = require("express");
 const path = require("path");
+const express = require("express");
 const cors = require("cors");
 const app = express();
 const bodyParser = require("body-parser");
 const uuid = require("uuid");
 const morgan = require("morgan");
 // Configs
-const DATA_BASEPATH = process.env.DATA_BASEPATH || __dirname;
 const CLIENT_ID = "pets";
 
-const petsCache = new KafkaSink({
-  undefined,
-  basePath: DATA_BASEPATH,
-  name: "pets-cache",
-  topics: ["pets.added", "pets.statusChanged"],
-  onLog: ({ log, topic, sink }) => {
-    if (topic === "pets.added") {
-      console.log(`Adding pet to disk: ${log.id} - ${log.name}`);
-      sink.db.dbPut(log.id, { ...log, status: "pending" });
-      return;
-    }
-
-    if (topic === "pets.statusChanged") {
-      console.log(`Updating pet status to disk: ${log.id} - ${log.status}`);
-      // Save to DB with new status
-      sink.db.dbMerge(log.id, { status: log.status });
-      return;
-    }
-  },
-});
-
-app.use(morgan("short"));
+const petsCache = new FlatDB(path.resolve(__dirname, `../pets/pets-cache.db`));
+module.exports.petsCache = petsCache;
+app.use(morgan("short")); // Log
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -46,11 +26,11 @@ app.get(`/api/${CLIENT_ID}`, (req, res) => {
   const { location, status } = req.query;
 
   if (!location && !status) {
-    return res.json(petsCache.db.dbGetAll());
+    return res.json(petsCache.dbGetAll());
   }
 
   let query = queryObjToMatchQuery({ status, location });
-  return res.json(petsCache.db.dbQuery(query));
+  return res.json(petsCache.dbQuery(query));
 });
 
 app.post(`/api/${CLIENT_ID}`, (req, res) => {
@@ -58,36 +38,39 @@ app.post(`/api/${CLIENT_ID}`, (req, res) => {
   pet.id = pet.id || uuid.v4();
   // TODO: Some validation of the body
 
-  petsCache.db.dbPut(pet.id, { ...pet, status: "available" });
+  petsCache.dbPut(pet.id, { ...pet, status: "available" });
   res.status(201).send(pet);
 });
 
 app.patch(`/api/${CLIENT_ID}/:id`, (req, res) => {
-  const pet = petsCache.db.dbGet(req.params.id);
+  const pet = petsCache.dbGet(req.params.id);
   const { status } = req.body;
-  if (!pet)
+  if (!pet) {
+    console.error(`Cannot find pet ${req.params.id} to delete`);
     res.status(400).json({
       message: "Pet not found, cannot patch.",
     });
+  }
   // TODO: Some validation of the body
   const updatedPet = { ...pet, status };
-  petsCache.db.dbMerge(updatedPet.id, { ...updatedPet });
+  petsCache.dbMerge(updatedPet.id, { ...updatedPet });
   res.status(201).send(updatedPet);
 });
 
 app.delete(`/api/${CLIENT_ID}/:id`, (req, res) => {
-  const pet = petsCache.db.dbGet(req.params.id);
+  const pet = petsCache.dbGet(req.params.id);
   if (!pet) {
+    console.error(`Cannot find pet ${req.params.id} to delete`);
     res.status(400).json({
       message: "Pet not found, cannot delete.",
     });
   }
-  petsCache.db.dbRemove(pet.id);
+  petsCache.dbRemove(pet.id);
   res.status(200).send(pet);
 });
 
 app.delete(`/api/${CLIENT_ID}`, (req, res) => {
-  petsCache.db.dbClear();
+  petsCache.dbClear();
   res.status(200).json({
     message: "Database was cleared.",
   });
