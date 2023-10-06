@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import Pets from "./Pets";
-import Adoptions from "./Adoptions";
+import Pets from './components/Pets';
+import Adoptions from './components/Adoptions';
 import useAdoptionsStore from "./adoptions.store";
 import { Button } from "./UI";
 import { setQuery, getQuery } from "./query";
-import WebsocketConsole from "./WebsocketConsole";
+import WebsocketConsole from './components/WebsocketConsole';
 import usePetsStore from "./pets.store";
-import { connect as wsConnect, onMessage } from "./websocket";
+// import { connect as wsConnect, onMessage } from "./websocket";
 
 const CONFIGS = {
   // Issues with websocket + cra proxy + caddy. Requires me to add this env variable to override it more naturally.
@@ -24,7 +24,6 @@ function App() {
   const location = getQuery("location");
   const adoptions = Object.values(useAdoptionsStore((s) => s.adoptions));
   const [locationInput, setLocationInput] = useState(location);
-  const [websocketMsgCount, setWebsocketMsgCount] = useState(0);
 
   useEffect(() => {
     if (!location) {
@@ -32,16 +31,7 @@ function App() {
       setQuery("location", "Plett");
       return;
     }
-
-    onMessage("app", () => {
-      // setWebsocketMsgCount((s) => s + 1);
-    });
-
-    return wsConnect({
-      location,
-      url: CONFIGS.websocketUrl,
-    });
-  }, []);
+  }, [location]);
 
   const pets = Object.values(usePetsStore((s) => s.pets));
 
@@ -76,7 +66,7 @@ function App() {
 
       <div className="p-8">
         <h2 className="text-2xl"> The game </h2>
-        <p>WebSocket messages: {websocketMsgCount}</p>
+        <p>WebSocket messages: VARIABLE SHOULD BE HERE</p>
         <p>
           {!pets.length ? (
             <span> No pets. Go rescue some pets!</span>

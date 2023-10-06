@@ -1,6 +1,5 @@
 // var http = require("http"); // Import Node.js core module
 const {
-  KafkaSink,
   FlatDB: { queryObjToMatchQuery },
   FlatDB,
 } = require("../lib");

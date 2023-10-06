@@ -1,4 +1,4 @@
-# Petstore Kafka demo site
+# Petstore demo site
 
 This is a contrived demo of a petstore with adoptions.
 It is build on Kafka topics written in Nodejs.
