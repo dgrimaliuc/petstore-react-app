@@ -81,25 +81,4 @@ const useStore = create<{
   },
 }));
 
-// // WebSocket connection
-// onMessage("pets.store", (json: any) => {
-//   if (
-//     json.type === "kafka" &&
-//     json.topic.startsWith("pets.") &&
-//     !api.url.includes("localhost")
-//   ) {
-//     const pet: Pet = json.log;
-//     const id = pet.id;
-//     useStore.setState((state) => {
-//       const oldPet = state.pets[id];
-//       return {
-//         pets: {
-//           ...state.pets,
-//           [id]: { ...oldPet, ...pet },
-//         },
-//       };
-//     });
-//   }
-// });
-
 export default useStore;

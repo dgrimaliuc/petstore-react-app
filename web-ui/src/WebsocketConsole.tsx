@@ -11,24 +11,7 @@ export default function WebsocketConsole({
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
-    // let websocket = new WebSocket(websocketUrl)
     setReadyState("Connecting removed");
-    // websocket.addEventListener('message', (msg) => {
-    // const log = msg.data
-    //
-    // setLogs(logs => ([...logs, log]))
-    // })
-
-    // websocket.addEventListener('open', () => {
-    // setReadyState('Open')
-    // websocket.send(JSON.stringify({ location }))
-    // })
-
-    // websocket.addEventListener('error', (err) => {
-    // setReadyState('Error')
-    // console.error(err)
-    // })
-    // return () => websocket.close()
   }, [location, setLogs, setReadyState]);
 
   return (
