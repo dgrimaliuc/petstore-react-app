@@ -1,63 +1,46 @@
-# Petstore Kafka demo site
+# Getting Started with Create React App
 
-This is a contrived demo of a petstore with adoptions.
-It is build on Kafka topics written in Nodejs.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-It exists as a functional example for describing with AsyncAPI and OpenAPI.
+## Available Scripts
 
-You can see a live demo of this running at https://petstore-kafka.swagger.io
+In the project directory, you can run:
 
-> NOTE: Given the way Kafka rebalances and the need for cacheing, it may take a while (a few minutes) for caches to be built, depending on the size of the Topic.
+### `npm start`
 
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## User Flows
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-![image](https://user-images.githubusercontent.com/8438485/228814936-378faa65-809f-412d-95a2-ee59c6bad7f1.png)
+### `npm test`
 
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Technical stack
+### `npm run build`
 
-![image](https://user-images.githubusercontent.com/8438485/228814110-04ec68e6-4e2e-4d91-9977-d243e2b55a59.png)
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-- There is a browser app (SPA) written in Typescript using Create-React-APP, it's found under [[./web-ui]].
-- There is a gateway for serving the SPA and proxying API calls to the other services. It is also under [[./web-ui]] and is a single Caddyfile.
-- There is a Pets service (nodejs + kafka sink) [[./services/pets]].
-- There is a Adoptions service (nodejs + kafka sink) [[./services/adoptions]].
-- There is a Websocket service (nodejs + kafka sink + publishes events) [[./services/websocket]].
-- There is a docker-compose file just for Kafka services [[./services/kafka/docker-compose.yml]].
-- There is a docker-compose file for the whole stack [[./docker-compose.yml]].
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## OpenAPI and AsyncAPI
+### `npm run eject`
 
-- OpenAPI for **Gateway** (includes both Pets and Adoptiosn services) https://app.swaggerhub.com/apis/SwaggerPMTests/Pets-Adoption-API
-- AsyncAPI for **Pets** service https://app.swaggerhub.com/apis/SwaggerPMTests/petstore-kafka-pets
-- AsyncAPI for **Adoptions** service https://app.swaggerhub.com/apis/SwaggerPMTests/petstore-kafka-adoptions
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-## Developing
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-To develop, first make sure you have all the dependencies installed.
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-> WARNING: Kafka needs to know its own hostname. Add an entry to your hosts file mapping kafka.local -> 127.0.0.1. Or tweak the docker-compose file to adjust.
+## Learn More
 
-A list can be found by running `make dependencies`. There are optional dependencie for Tmux/inator, which are helpful for spinning up several servers at once each with their own terminal pane. But that does require a little bit of tmux knowledge.
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-You can launch each service with `make dev-{service}` where `{service}` is the name of the service. A list can be seen by running `make help`.
-
-Alternatively, if you have Tmuxinator install you can run `make dev` which will launch all services.
-
-All services have hot-reload, but they make require a restart now and then if there are kafka delays/issues.
-
-## Building
-
-All services have a Docker image and the entire stack can be brought up with `docker-compose up` if the images are built and/or already hosted in hub.docker.com.
-
-To build all images, run `make build` which will build them one-by-one. All builds happen within the Docker context so it isn't required to run `yarn run build` beforehand.
-
-Alternatively you can build the individual docker images with `make build-{service}` where `{service}` is the service. For a full list see `make help`.
-
-## Testing
-
-Test projects for this application have been added to the [ReadyAPI-tests](./ReadyAPI-tests) folder. The projects have test across the OpenAPI and AsyncAPIs as described in the [API Section](#openapi-and-asyncapi). In order to run these tests you need to have ReadyAPI installed. A free-trial can be obtained via https://www.soapui.org/downloads/download-readyapi-trial/
-
+To learn React, check out the [React documentation](https://reactjs.org/).

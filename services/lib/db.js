@@ -111,7 +111,7 @@ function queryStrToMatchQuery(str) {
 // [one,two] = {$and: [one,two]}
 function queryObjToMatchQuery(obj) {
   let query = {};
-  for (field in obj) {
+  for (let field in obj) {
     let value = obj[field];
     if (Array.isArray(value)) {
       value = { $and: value.map((v) => queryStrToMatchQuery(v)) };
