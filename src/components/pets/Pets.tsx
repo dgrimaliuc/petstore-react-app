@@ -1,101 +1,36 @@
-import { useState, useCallback, useEffect } from 'react';
-import usePetStore from '../pets.store';
-import useAdoptionsStore from '../adoptions.store';
-import randomName from '../pets.name';
+import { useState, useCallback, useEffect, useContext } from 'react';
+import randomName from './pets.name';
 import { Button } from '../UI';
-import { PlusIcon, UploadIcon, CheckIcon } from '@heroicons/react/solid';
-import { getQuery } from '../query';
-
-function useSelected(): [Set<string>, (str: string) => void, () => void] {
-  const [state, setState] = useState<Set<string>>(new Set());
-
-  const _toggle = (str: string) =>
-    setState((s) => {
-      let newSet = new Set(s);
-      if (newSet.has(str)) {
-        newSet.delete(str);
-      } else {
-        newSet.add(str);
-      }
-      return newSet;
-    });
-
-  const _clear = () => setState(new Set());
-  return [state, _toggle, _clear];
-}
+import PetsContext from './store/PetsContext';
+import { PlusIcon, UploadIcon } from '@heroicons/react/solid';
+import SinglePet from './SinglePet';
+import { getQuery } from '../utils/query';
 
 export default function Pets() {
+  const {
+    pets,
+    addPet,
+    fetchPets,
+    selectedRows,
+    requestAdoption,
+    deselectAll,
+  } = useContext(PetsContext);
   // Uncomment for bug
   // const adoptions = useAdoptionsStore((s) => s.adoptions);
-  const fetchPets = usePetStore((s) => s.fetchPets);
-  const addPet = usePetStore((s) => s.addPet);
-  const pets = usePetStore((s) => s.pets);
+  // const pets = usePetStore((s) => s.pets);
   const location = getQuery('location');
-  const [selectedRows, toggleRow, deselectAll] = useSelected();
+  const [name, setName] = useState(randomName());
 
   useEffect(() => {
     fetchPets({ location, status: '!adopted' });
-  }, [fetchPets, location]); //, adoptions
+  }, [fetchPets, location]);
 
-  const rows = () => {
-    return Object.values(pets).reverse() || [];
-  };
-  const _requestAdoption = useAdoptionsStore((s) => s.requestAdoptions);
-  const requestAdoption = () => {
-    Array.from(selectedRows).forEach((element) => {
-      pets[element].status = 'onhold';
-    });
-    deselectAll();
-    _requestAdoption({ pets: Array.from(selectedRows), location });
-  };
-
-  const [name, setName] = useState(randomName());
+  let rows = Object.values(pets).reverse() || [];
 
   const onAdd = useCallback(() => {
     addPet({ name, location });
     setName(randomName());
   }, [addPet, name, location]);
-
-  function PetRow({ pet }: any) {
-    return (
-      <tr
-        key={pet.id}
-        onClick={() => toggleRow(pet.id)}
-        className={`odd:bg-gray-50 cursor-pointer`}
-      >
-        <td className='px-4 py-4 whitespace-nowrap'>
-          <div className='flex items-center'>
-            <div className='ml-4'>
-              <div className='text-sm font-medium text-gray-900'>
-                {pet.name}
-              </div>
-            </div>
-          </div>
-        </td>
-        <td className='px-4 py-4 whitespace-nowrap'>
-          <span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 uppercase'>
-            {pet.status}
-          </span>
-        </td>
-        <td className='px-4 py-4 whitespace-nowrap'>
-          <div className='flex items-center justify-end'>
-            <div className='flex-shrink-0 h-4 w-4 text-gray-600 relative'>
-              {selectedRows.has(pet.id) && (
-                <CheckIcon className='absolute h-5 text-white left-[-1px] top-[3px]' />
-              )}
-              <input
-                className='appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-500 checked:border-blue-800 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2'
-                type='checkbox'
-                onClick={(e) => e.stopPropagation()}
-                readOnly
-                checked={selectedRows.has(pet.id)}
-              />
-            </div>
-          </div>
-        </td>
-      </tr>
-    );
-  }
 
   return (
     <div className='flex flex-col'>
@@ -165,10 +100,10 @@ export default function Pets() {
                   </tr>
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200 max-h-[400px]'>
-                  {rows().map((row) => (
-                    <PetRow pet={row} key={row.id} />
+                  {rows.map((row) => (
+                    <SinglePet pet={row} key={row.id} />
                   ))}
-                  {rows().length ? null : (
+                  {rows.length ? null : (
                     <tr>
                       <td className='px-4 py-4 whitespace-nowrap'>
                         <div className='flex items-center'>

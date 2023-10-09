@@ -1,1 +1,1 @@
-module.exports.FlatDB = require("./db");
+export * from './db.js';

@@ -1,4 +1,3 @@
-
 const NAMES = [
   'Abby',
   'Abe',
@@ -497,9 +496,9 @@ const NAMES = [
   'Zelda',
   'Zeus',
   'Zoe',
-  'Ziggy'
-]
-const NAMES_LEN = NAMES.length
+  'Ziggy',
+];
+const NAMES_LEN = NAMES.length;
 export default function randomName(): string {
-  return NAMES[Math.floor(Math.random() * NAMES_LEN)]
+  return NAMES[Math.floor(Math.random() * NAMES_LEN)];
 }

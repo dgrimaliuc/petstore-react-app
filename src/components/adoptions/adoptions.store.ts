@@ -1,6 +1,6 @@
-import create from "zustand";
+import { create } from 'zustand';
 
-import { arrayToObject } from "./utils";
+import { arrayToObject } from '../utils/utils';
 
 export interface AdoptionReason {
   petId: string;
@@ -8,17 +8,17 @@ export interface AdoptionReason {
 }
 export interface Adoption {
   id: string;
-  status: "requested" | "pending" | "available" | "denied" | "approved";
+  status: 'requested' | 'pending' | 'available' | 'denied' | 'approved';
   pets: string[];
   location?: string;
   reasons?: AdoptionReason[];
 }
 
 export class AdoptionsAPI {
-  url: string = "";
+  url: string = '';
 
   constructor() {
-    this.url = "http://localhost:9093/api/adoptions"; // http://localhost:9092/api/pets https://petstore-kafka.swagger.io/api
+    this.url = 'http://localhost:9093/api/adoptions'; // http://localhost:9092/api/pets https://petstore-kafka.swagger.io/api
   }
 
   getAdoptions = async ({
@@ -29,8 +29,8 @@ export class AdoptionsAPI {
     status: string;
   }) => {
     let queries = new URLSearchParams();
-    if (location) queries.set("location", location);
-    if (status) queries.set("status", status);
+    if (location) queries.set('location', location);
+    if (status) queries.set('status', status);
 
     return fetch(`${this.url}?${queries}`)
       .then((res) => res.json())
@@ -41,10 +41,10 @@ export class AdoptionsAPI {
 
   changeStatus = async ({ status, id }: { status: string; id: string }) => {
     return fetch(`${this.url}/${id}`, {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({ status }),
     })
@@ -60,12 +60,12 @@ export class AdoptionsAPI {
     location: string;
   }) => {
     return fetch(`${this.url}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ pets, location, status: "requested" }),
+      body: JSON.stringify({ pets, location, status: 'requested' }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -100,7 +100,7 @@ const useStore = create<{
   fetchAdoptions: async ({ location, status }) => {
     try {
       const adoptions = await api.getAdoptions({ location, status });
-      set(() => ({ adoptions: arrayToObject(adoptions, "id") }));
+      set(() => ({ adoptions: arrayToObject(adoptions, 'id') }));
     } catch (e) {
       console.error(e);
       // TODO

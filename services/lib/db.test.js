@@ -1,5 +1,10 @@
 /// <reference types="jest" />
-const { queryFilter, matchesQuery, queryStrToMatchQuery, queryObjToMatchQuery } = require('./db')
+import {
+  queryFilter,
+  matchesQuery,
+  queryStrToMatchQuery,
+  queryObjToMatchQuery,
+} from './db';
 
 describe('queries', () => {
 

@@ -1,13 +1,13 @@
-const FlatFile = require("flat-file-db");
+import FlatFile from 'flat-file-db';
 
-class FlatDb {
+class FlatDB {
   constructor(file) {
     this.db = FlatFile.sync(file);
-    this.db.on("open", () => this.log(`${file} opened`));
+    this.db.on('open', () => this.log(`${file} opened`));
   }
 
   log(...msgs) {
-    console.log(`[DB][I] ${new Date()} - ${msgs.join(" - ")}`);
+    console.log(`[DB][I] ${new Date()} - ${msgs.join(' - ')}`);
   }
 
   dbPut(key, value) {
@@ -25,7 +25,7 @@ class FlatDb {
   // All keys, except the _meta key.
   dbGetAll(withMeta = false) {
     let keys = this.db.keys();
-    keys = withMeta ? keys : keys.filter((a) => a !== "_meta");
+    keys = withMeta ? keys : keys.filter((a) => a !== '_meta');
     return keys.map((key) => this.db.get(key));
   }
 
@@ -43,12 +43,12 @@ class FlatDb {
     const ori = this.dbGet(key) || {};
 
     if (
-      typeof ori !== "object" ||
+      typeof ori !== 'object' ||
       !ori ||
-      typeof newValues !== "object" ||
+      typeof newValues !== 'object' ||
       !newValues
     ) {
-      throw new Error("Tried to merge value(s) that are not objects");
+      throw new Error('Tried to merge value(s) that are not objects');
     }
 
     return this.dbPut(key, { ...ori, ...newValues });
@@ -56,10 +56,10 @@ class FlatDb {
 
   // Meta to keep it outside of other commands
   dbGetMeta(key) {
-    let _meta = this.db.get("_meta") || {};
+    let _meta = this.db.get('_meta') || {};
 
     // Heal from non-object value stored
-    _meta = typeof _meta === "object" && _meta ? _meta : {};
+    _meta = typeof _meta === 'object' && _meta ? _meta : {};
     return key ? _meta[key] : _meta;
   }
 
@@ -70,15 +70,9 @@ class FlatDb {
     } else {
       _meta = value;
     }
-    return this.db.put("_meta", _meta);
+    return this.db.put('_meta', _meta);
   }
 }
-
-module.exports = FlatDb;
-module.exports.queryFilter = queryFilter;
-module.exports.matchesQuery = matchesQuery;
-module.exports.queryStrToMatchQuery = queryStrToMatchQuery;
-module.exports.queryObjToMatchQuery = queryObjToMatchQuery;
 
 // -------------------------------------------
 // Utilities
@@ -91,17 +85,17 @@ function queryFilter(values, query) {
 }
 
 function queryStrToMatchQuery(str) {
-  if (typeof str === "undefined") return undefined;
-  str = str + "";
+  if (typeof str === 'undefined') return undefined;
+  str = str + '';
 
-  if (str.includes("|"))
-    return { $or: str.split("|").map(queryStrToMatchQuery) };
+  if (str.includes('|'))
+    return { $or: str.split('|').map(queryStrToMatchQuery) };
 
-  if (str.includes("&"))
-    return { $and: str.split("&").map(queryStrToMatchQuery) };
+  if (str.includes('&'))
+    return { $and: str.split('&').map(queryStrToMatchQuery) };
 
-  if (str.startsWith("!")) {
-    return { $not: queryStrToMatchQuery(str.replace("!", "")) };
+  if (str.startsWith('!')) {
+    return { $not: queryStrToMatchQuery(str.replace('!', '')) };
   }
 
   return { $eqi: str };
@@ -127,7 +121,7 @@ function queryObjToMatchQuery(obj) {
 // queryObject = {$eq: scalar, $not: queryObject, $or: queryObj[], $and: queryObj[]}
 // ie: a testField is any key that is not part of the predefined query list. To test a field that has a dollar in it, you'll need to escape it with double dollar. Eg: $$eq will be the testField $eq
 
-const specialKeys = new Set(["$eq", "$eqi", "$or", "$and", "$not"]);
+const specialKeys = new Set(['$eq', '$eqi', '$or', '$and', '$not']);
 function matchesQuery(testValue, query) {
   // Canonicalize the query
   if (!isObj(query)) {
@@ -135,7 +129,7 @@ function matchesQuery(testValue, query) {
   }
 
   // $eq
-  if (typeof query.$eq !== "undefined") {
+  if (typeof query.$eq !== 'undefined') {
     let scalarValue = query.$eq;
 
     if (typeof testValue !== typeof scalarValue) return false;
@@ -145,14 +139,14 @@ function matchesQuery(testValue, query) {
     }
   }
 
-  if (typeof query.$eqi !== "undefined") {
+  if (typeof query.$eqi !== 'undefined') {
     let scalarValue = query.$eqi;
 
     if (typeof testValue !== typeof scalarValue) {
       return false;
     }
 
-    if (typeof scalarValue === "string") {
+    if (typeof scalarValue === 'string') {
       if (testValue.toLowerCase() !== scalarValue.toLowerCase()) {
         return false;
       }
@@ -161,15 +155,15 @@ function matchesQuery(testValue, query) {
     }
   }
 
-  if (typeof query.$not !== "undefined") {
+  if (typeof query.$not !== 'undefined') {
     let childQuery = query.$not;
     if (matchesQuery(testValue, childQuery)) return false;
   }
 
-  if (typeof query.$or !== "undefined") {
+  if (typeof query.$or !== 'undefined') {
     let clauses = query.$or;
     if (!Array.isArray(clauses)) {
-      throw new Error("$or must be an array of queries");
+      throw new Error('$or must be an array of queries');
     }
 
     if (!clauses.some((q) => matchesQuery(testValue, q))) {
@@ -177,10 +171,10 @@ function matchesQuery(testValue, query) {
     }
   }
 
-  if (typeof query.$and !== "undefined") {
+  if (typeof query.$and !== 'undefined') {
     let clauses = query.$and;
     if (!Array.isArray(clauses)) {
-      throw new Error("$and must be an array of queries");
+      throw new Error('$and must be an array of queries');
     }
 
     if (clauses.some((q) => !matchesQuery(testValue, q))) {
@@ -192,8 +186,8 @@ function matchesQuery(testValue, query) {
   let testFields = Object.keys(query)
     .filter((f) => !specialKeys.has(f))
     .map((field) => {
-      if (field.startsWith("$$")) {
-        return field.replace("$$", "$"); // Will only replace the first match.
+      if (field.startsWith('$$')) {
+        return field.replace('$$', '$'); // Will only replace the first match.
       }
       return field;
     });
@@ -203,7 +197,7 @@ function matchesQuery(testValue, query) {
 
   if (
     testFields.some((field) => {
-      let queryField = field.startsWith("$") ? "$" + field : field;
+      let queryField = field.startsWith('$') ? '$' + field : field;
       return !matchesQuery(testValue[field], query[queryField]);
     })
   ) {
@@ -214,7 +208,7 @@ function matchesQuery(testValue, query) {
 }
 
 function isObj(test) {
-  return test && typeof test === "object";
+  return test && typeof test === 'object';
 }
 
 function omit(obj, keys) {
@@ -224,3 +218,11 @@ function omit(obj, keys) {
   });
   return newObj;
 }
+
+export {
+  FlatDB,
+  queryFilter,
+  matchesQuery,
+  queryStrToMatchQuery,
+  queryObjToMatchQuery,
+};

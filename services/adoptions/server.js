@@ -1,20 +1,22 @@
 // var http = require("http"); // Import Node.js core module
-const {
-  FlatDB: { queryObjToMatchQuery },
-} = require("../lib");
+import { FlatDB, queryObjToMatchQuery } from '../lib/index.js';
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import { v4 as uuid } from 'uuid';
+import morgan from 'morgan';
+import { petsCache } from '../pets/server.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const express = require("express");
-const path = require("path");
-const { FlatDB } = require("../lib");
-const cors = require("cors");
-const app = express();
-const bodyParser = require("body-parser");
-const uuid = require("uuid");
-const morgan = require("morgan");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // Configs
-const CLIENT_ID = "adoptions";
+const app = express();
+const CLIENT_ID = 'adoptions';
 
-const { petsCache } = require("../pets/server");
 // Add some pets before we start
 // Uncomment for bug and modify lione above
 // const petsCache = new FlatDB(path.resolve(__dirname, `../pets/pets-cache.db`));
@@ -30,21 +32,21 @@ const adoptionsCache = new FlatDB(
 // denied -> END
 async function processStatusChange(adoption, status) {
   // requested -> rejected | available
-  if (status === "requested") {
+  if (status === 'requested') {
     // available
     // for each pets, hold them
     // update adoption status
     const reasons = adoption.pets
       .map((petId) => ({ id: petId, status: petsCache.dbGet(petId)?.status }))
-      .filter(({ status }) => status !== "available")
+      .filter(({ status }) => status !== 'available')
       .map(({ id, status }) => ({ petId: id, message: status }));
     // Rejected
     if (reasons.length) {
-      adoption.status = "rejected";
+      adoption.status = 'rejected';
       adoption.reasons = reasons;
       adoptionsCache.dbMerge(adoption.id, {
         ...adoption,
-        status: "rejected",
+        status: 'rejected',
         reasons: reasons,
       });
       // End - Rejected
@@ -54,10 +56,10 @@ async function processStatusChange(adoption, status) {
     // Available
     adoption.pets.map((adoptedPet) => {
       const pet = petsCache.dbGet(adoptedPet);
-      petsCache.dbMerge(pet.id, { ...pet, status: "onhold" }); // Remove for bug
+      petsCache.dbMerge(pet.id, { ...pet, status: 'onhold' }); // Remove for bug
     });
 
-    adoption.status = "available";
+    adoption.status = 'available';
     adoptionsCache.dbMerge(adoption.id, {
       ...adoption,
     });
@@ -66,35 +68,35 @@ async function processStatusChange(adoption, status) {
   }
 
   // Adopted -> Claim all the Pets
-  if (status === "approved") {
-    adoption.status = "adopted";
+  if (status === 'approved') {
+    adoption.status = 'adopted';
     adoptionsCache.dbMerge(adoption.id, {
       ...adoption,
     });
     adoption.pets.map((adoptedPet) => {
       const pet = petsCache.dbGet(adoptedPet);
-      petsCache.dbMerge(pet.id, { ...pet, status: "adopted" }); // Remove for bug
+      petsCache.dbMerge(pet.id, { ...pet, status: 'adopted' }); // Remove for bug
     });
 
     return;
   }
   // Denied
-  if (status === "denied") {
-    adoption.status = "denied";
+  if (status === 'denied') {
+    adoption.status = 'denied';
     adoptionsCache.dbMerge(adoption.id, {
       ...adoption,
-      status: "denied",
+      status: 'denied',
     });
     adoption.pets.map((adoptedPet) => {
       const pet = petsCache.dbGet(adoptedPet);
-      petsCache.dbMerge(pet.id, { ...pet, status: "available" });
+      petsCache.dbMerge(pet.id, { ...pet, status: 'available' });
     });
   }
 }
 
 // ---------------------------------------------------------------
 // Rest
-app.use(morgan("short"));
+app.use(morgan('short'));
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -113,10 +115,10 @@ app.get(`/api/${CLIENT_ID}`, (req, res) => {
 
 app.post(`/api/${CLIENT_ID}`, (req, res) => {
   const adoption = req.body;
-  adoption.id = adoption.id || uuid.v4();
+  adoption.id = adoption.id || uuid();
 
   // TODO: Some validation of the body
-  processStatusChange(adoption, "requested");
+  processStatusChange(adoption, 'requested');
   adoptionsCache.dbPut(adoption.id, { ...adoption });
   res.status(201).send(adoption);
 });
