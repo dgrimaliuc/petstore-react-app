@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-
 import { arrayToObject } from '../utils/utils';
+import config from '../../config';
 
 export interface AdoptionReason {
   petId: string;
@@ -18,7 +18,7 @@ export class AdoptionsAPI {
   url: string = '';
 
   constructor() {
-    this.url = 'http://localhost:9093/api/adoptions'; // http://localhost:9092/api/pets https://petstore-kafka.swagger.io/api
+    this.url = `${config.hosts.db}/api/adoptions`;
   }
 
   getAdoptions = async ({
@@ -39,14 +39,21 @@ export class AdoptionsAPI {
       });
   };
 
-  changeStatus = async ({ status, id }: { status: string; id: string }) => {
+  changeStatus = async ({
+    status,
+    id,
+    location,
+  }: {
+    status: string;
+    id: string;
+    location: string;
+  }) => {
     return fetch(`${this.url}/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, location }),
     })
       .then((res) => res.json())
       .then((data) => data as Adoption);
@@ -63,7 +70,6 @@ export class AdoptionsAPI {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({ pets, location, status: 'requested' }),
     })
@@ -94,7 +100,15 @@ const useStore = create<{
     location: string;
     status: string;
   }): void;
-  changeStatus({ status, id }: { id: string; status: string }): void;
+  changeStatus({
+    status,
+    id,
+    location,
+  }: {
+    id: string;
+    status: string;
+    location: string;
+  }): void;
 }>((set) => ({
   adoptions: {},
   fetchAdoptions: async ({ location, status }) => {
@@ -106,8 +120,8 @@ const useStore = create<{
       // TODO
     }
   },
-  changeStatus: async ({ id, status }) => {
-    const adoption = await api.changeStatus({ status, id });
+  changeStatus: async ({ id, status, location }) => {
+    const adoption = await api.changeStatus({ status, id, location });
     set(() => ({
       adoptions: {
         ...useStore.getState().adoptions,

@@ -1,10 +1,12 @@
 import { Button } from '../UI';
 import { Pill } from '../UI';
 import usePetStore from '../pets/pets.store';
+import { getQuery } from '../utils/query';
 import useAdoptionsStore from './adoptions.store';
 
 export default function Adoption({ a }: any) {
   const pets = usePetStore.getState().pets;
+  const location = getQuery('location');
   const changeStatus = useAdoptionsStore((s) => s.changeStatus);
   const changeStatusCallback = (a: {
     status: any;
@@ -12,7 +14,7 @@ export default function Adoption({ a }: any) {
     affectedPets: string[];
   }) => {
     changePetStatus(a);
-    changeStatus({ id: a.id, status: a.status });
+    changeStatus({ id: a.id, status: a.status, location });
   };
 
   const changePetStatus = (a: {

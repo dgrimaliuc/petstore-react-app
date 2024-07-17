@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { arrayToObject } from '../utils/utils';
+import config from '../../config';
 
 export interface Pet {
   id: string;
@@ -12,7 +13,7 @@ export class PetsAPI {
   public url: string;
 
   constructor() {
-    this.url = 'http://localhost:9092/api/pets';
+    this.url = `${config.hosts.db}/api/pets`;
   }
 
   getPets = async ({
@@ -38,7 +39,6 @@ export class PetsAPI {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({ name, location, status: 'available' }),
     })

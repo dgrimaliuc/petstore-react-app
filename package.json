@@ -27,12 +27,10 @@
   },
   "scripts": {
     "gateway": "caddy run --envfile dev.env",
-    "start": "REACT_APP_WEBSOCKET_HOST=wss://petstore-kafka.swagger.io/websocket react-scripts start",
+    "start": "export PORT=5050; react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev:server": "nodemon ./services/adoptions/server.js",
-    "dev:pet-server": "nodemon ./services/pets/server.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
