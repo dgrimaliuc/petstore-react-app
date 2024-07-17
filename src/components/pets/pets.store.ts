@@ -1,18 +1,19 @@
-import create from "zustand";
-import { arrayToObject } from "./utils";
+import { create } from 'zustand';
+import { arrayToObject } from '../utils/utils';
+import config from '../../config';
 
 export interface Pet {
   id: string;
   name: string;
   location?: string;
-  status: "pending" | "available" | "onhold" | "adopted";
+  status: 'pending' | 'available' | 'onhold' | 'adopted';
 }
 
 export class PetsAPI {
   public url: string;
 
   constructor() {
-    this.url = "http://localhost:9092/api/pets";
+    this.url = `${config.hosts.db}/api/pets`;
   }
 
   getPets = async ({
@@ -23,8 +24,8 @@ export class PetsAPI {
     status?: string;
   }) => {
     let queries = new URLSearchParams();
-    if (location) queries.set("location", location);
-    if (status) queries.set("status", status);
+    if (location) queries.set('location', location);
+    if (status) queries.set('status', status);
 
     return fetch(`${this.url}?${queries}`)
       .then((res) => res.json())
@@ -35,12 +36,11 @@ export class PetsAPI {
 
   addPet = async ({ name, location }: { name: string; location: string }) => {
     return fetch(`${this.url}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, location, status: "available" }),
+      body: JSON.stringify({ name, location, status: 'available' }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -64,19 +64,19 @@ const useStore = create<{
     try {
       const pet = await api.addPet({ name, location });
       set(() => ({
-        petError: "",
+        petError: '',
         pets: { ...useStore.getState().pets, [pet.id]: pet },
       }));
     } catch (e) {
-      set(() => ({ petError: e + "" }));
+      set(() => ({ petError: e + '' }));
     }
   },
   fetchPets: async ({ location, status }) => {
     try {
       const pets = await api.getPets({ location, status });
-      set(() => ({ petError: "", pets: arrayToObject(pets, "id") }));
+      set(() => ({ petError: '', pets: arrayToObject(pets, 'id') }));
     } catch (e) {
-      set(() => ({ petError: e + "" }));
+      set(() => ({ petError: e + '' }));
     }
   },
 }));

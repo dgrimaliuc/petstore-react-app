@@ -1,34 +1,23 @@
-import { useState, useEffect } from "react";
-import Pets from './components/Pets';
-import Adoptions from './components/Adoptions';
-import useAdoptionsStore from "./adoptions.store";
-import { Button } from "./UI";
-import { setQuery, getQuery } from "./query";
+import { useEffect } from 'react';
+import { PetsContextProvider } from './components/pets/store/PetsContext';
+import Pets from './components/pets/Pets';
+import Adoptions from './components/adoptions/Adoptions';
+import useAdoptionsStore from './components/adoptions/adoptions.store';
+import Location from '../src/components/Location';
+import { setQuery, getQuery } from './components/utils/query';
 import WebsocketConsole from './components/WebsocketConsole';
-import usePetsStore from "./pets.store";
-// import { connect as wsConnect, onMessage } from "./websocket";
-
-const CONFIGS = {
-  // Issues with websocket + cra proxy + caddy. Requires me to add this env variable to override it more naturally.
-  websocketUrl:
-    process.env.REACT_APP_WEBSOCKET_HOST || relativeWebsocketUrl("/websocket"),
-  petsUrl: "/api",
-  adoptionsUrl: "/api",
-};
-
-const newTab = () => {
-  window.open(window.location.href, "_blank");
-};
+import usePetsStore from './components/pets/pets.store';
+import InfoBoard from './components/InfoBoard';
+import SectionWrapper from './components/SectionWrapper';
 
 function App() {
-  const location = getQuery("location");
+  const location = getQuery('location');
   const adoptions = Object.values(useAdoptionsStore((s) => s.adoptions));
-  const [locationInput, setLocationInput] = useState(location);
 
   useEffect(() => {
     if (!location) {
       // Reloads the page
-      setQuery("location", "Plett");
+      setQuery('location', 'Plett');
       return;
     }
   }, [location]);
@@ -36,89 +25,35 @@ function App() {
   const pets = Object.values(usePetsStore((s) => s.pets));
 
   return (
-    <div className="container mx-auto">
-      <div className="p-8 flex items-center">
-        <h2>Location</h2>
-        <div className="flex">
-          <input
-            id="location-input"
-            className="ml-2 px-2.5 py-1 border rounded-md"
-            value={locationInput}
-            onChange={(e) => {
-              setLocationInput(e.target.value);
-            }}
-            type="text"
-          />
-          <Button
-            className="ml-2"
-            color="blue"
-            onClick={() => setQuery("location", locationInput)}
-          >
-            {" "}
-            Change location
-          </Button>
-          <Button className="ml-2" color="blue" onClick={newTab}>
-            {" "}
-            Open in new Tab
-          </Button>
-        </div>
-      </div>
+    <div className='container mx-auto'>
+      <Location locationParam={location} />
+      <InfoBoard
+        location={location}
+        petsLength={pets.length}
+        adoptionLength={adoptions.length}
+      />
 
-      <div className="p-8">
-        <h2 className="text-2xl"> The game </h2>
-        <p>WebSocket messages: VARIABLE SHOULD BE HERE</p>
-        <p>
-          {!pets.length ? (
-            <span> No pets. Go rescue some pets!</span>
-          ) : (
-            <span>
-              {" "}
-              Pets in {location}: {pets.length}
-            </span>
-          )}
-        </p>
-        <p>
-          {!adoptions.length ? (
-            <span> No adoptions. Go get those pets adopted! </span>
-          ) : (
-            <span>
-              {" "}
-              Adoptions in {location}: {adoptions.length}
-            </span>
-          )}
-        </p>
-      </div>
-
-      <div className="flex">
-        <div className="p-8 flex-1">
-          <h2 className="text-2xl ml-4">Pets in {location}</h2>
-          <div className="mt-2">
+      <div className='flex'>
+        <SectionWrapper
+          testAttribute='pets-section'
+          title={`Pets in ${location}`}
+        >
+          <PetsContextProvider>
             <Pets />
-          </div>
-        </div>
+          </PetsContextProvider>
+        </SectionWrapper>
 
-        <div className="p-8 flex-1">
-          <h2 className="text-2xl ml-4">Adoptions in {location}</h2>
-          <div className="mt-2">
-            <Adoptions />
-          </div>
-        </div>
+        <SectionWrapper
+          testAttribute='adoptions-section'
+          title={`Adoptions in ${location}`}
+        >
+          <Adoptions />
+        </SectionWrapper>
       </div>
 
-      <div>
-        <WebsocketConsole
-          location={location}
-          websocketUrl={CONFIGS.websocketUrl}
-        />
-      </div>
+      <WebsocketConsole location={location} />
     </div>
   );
 }
 
 export default App;
-
-function relativeWebsocketUrl(path: string) {
-  let url = new URL(window.location.href);
-  let protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${url.host}${path}`;
-}
