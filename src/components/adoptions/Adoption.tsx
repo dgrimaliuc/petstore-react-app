@@ -42,7 +42,7 @@ export default function Adoption({ a }: any) {
       Status: <Pill color='orange'>{a.status}</Pill>
       <div className='py-3 space-y-1' data-t='pets-list'>
         {a.pets.map((id: string) => {
-          const reason = a.reasons?.find((r: any) => r.petId === id);
+          const reason = a.reasons?.find((r: any) => r.id === id);
           return (
             <div
               key={id}
@@ -51,7 +51,10 @@ export default function Adoption({ a }: any) {
             >
               {(pets[id] || {}).name}
               {reason ? (
-                <span className='text-xs ml-2 px-1 uppercase text-red-800'>
+                <span
+                  className='text-xs ml-2 px-1 uppercase text-red-800'
+                  data-t='error-reason'
+                >
                   {' '}
                   {reason.message}
                 </span>
@@ -61,7 +64,10 @@ export default function Adoption({ a }: any) {
         })}
       </div>
       {a.reasons?.length ? (
-        <div className='bg-red-50 border-red-600 border text-red-600 p-3 mt-4'>
+        <div
+          className='bg-red-50 border-red-600 border text-red-600 p-3 mt-4'
+          data-t='error-message'
+        >
           <div> Some of the pets could not be adopted </div>
         </div>
       ) : null}
