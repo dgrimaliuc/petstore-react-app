@@ -5,7 +5,6 @@ import Adoptions from './components/adoptions/Adoptions';
 import useAdoptionsStore from './components/adoptions/adoptions.store';
 import Location from '../src/components/Location';
 import { setQuery, getQuery } from './components/utils/query';
-import WebsocketConsole from './components/WebsocketConsole';
 import usePetsStore from './components/pets/pets.store';
 import InfoBoard from './components/InfoBoard';
 import SectionWrapper from './components/SectionWrapper';
@@ -50,8 +49,6 @@ function App() {
           <Adoptions />
         </SectionWrapper>
       </div>
-
-      <WebsocketConsole location={location} />
     </div>
   );
 }

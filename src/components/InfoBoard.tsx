@@ -6,8 +6,7 @@ export default function InfoBoard(props: {
   return (
     <div className='p-8' data-t='info-section'>
       <h2 className='text-2xl'> The game </h2>
-      <p>WebSocket messages: 0</p>
-      <p>
+      <p data-t='pets-count'>
         {!props.petsLength ? (
           <span> No pets. Go rescue some pets!</span>
         ) : (
@@ -17,7 +16,7 @@ export default function InfoBoard(props: {
           </span>
         )}
       </p>
-      <p>
+      <p data-t='adoptions-count'>
         {!props.adoptionLength ? (
           <span> No adoptions. Go get those pets adopted! </span>
         ) : (

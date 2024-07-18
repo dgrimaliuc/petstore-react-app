@@ -35,19 +35,24 @@ export default function Pets() {
   return (
     <div className='flex flex-col'>
       <div className='-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
-        <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8'>
+        <div className='py-2 align-middle inline-block min-w-full  sm:px-6 lg:px-8'>
           <div className='overflow-hidden border-b sm:rounded-lg'>
             <div className='flex justify-between mt-1'>
               <div className='flex justify-end ml-4 items-center'>
                 <input
                   className='px-5 py-1 border rounded-md'
+                  data-t='pet-name-input'
                   value={name}
                   onChange={(e: any) => {
                     setName(e.target.value);
                   }}
                   type='text'
                 />
-                <Button onClick={onAdd} className='ml-2 flex items-center'>
+                <Button
+                  onClick={onAdd}
+                  className='ml-2 flex items-center'
+                  testAttribute='add-rescue'
+                >
                   {' '}
                   <PlusIcon className='h-6 mr-2' /> Add Rescue
                 </Button>
@@ -59,18 +64,19 @@ export default function Pets() {
                   color='orange'
                   size='xs'
                   className='ml-2 flex items-center'
+                  testAttribute='adopt-button'
                 >
                   {' '}
                   <UploadIcon className='h-6 mr-2' /> Adopt selected pets
                 </Button>
               </div>
             </div>
-            <div className='h-[400px] overflow-y-auto'>
+            <div className='h-[450px] overflow-y-auto'>
               <table
                 id='pets-table'
                 className='mt-4 min-w-full divide-y divide-gray-200'
               >
-                <thead className='sticky'>
+                <thead className='sticky' style={{ zIndex: 1 }}>
                   <tr className='bg-white sticky top-0'>
                     <th
                       scope='col'
@@ -93,6 +99,7 @@ export default function Pets() {
                         color='blue'
                         className='ml-2 text-xs'
                         disabled={!selectedRows.size}
+                        testAttribute='deselect-button'
                       >
                         Deselect
                       </Button>
@@ -105,7 +112,13 @@ export default function Pets() {
                   ))}
                   {rows.length ? null : (
                     <tr>
-                      <td className='px-4 py-4 whitespace-nowrap'>
+                      <td
+                        className='px-4 py-4 whitespace-nowrap'
+                        style={{
+                          position: 'relative',
+                          zIndex: 0,
+                        }}
+                      >
                         <div className='flex items-center'>
                           No rows. Try reset filters{' '}
                         </div>
