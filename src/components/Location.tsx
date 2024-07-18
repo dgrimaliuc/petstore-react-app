@@ -26,11 +26,17 @@ export default function Location({ locationParam }: { locationParam: string }) {
           className='ml-2'
           color='blue'
           onClick={() => setQuery('location', locationInput)}
+          testAttribute='change-location'
         >
           {' '}
           Change location
         </Button>
-        <Button className='ml-2' color='blue' onClick={newTab}>
+        <Button
+          className='ml-2'
+          color='blue'
+          onClick={newTab}
+          testAttribute='open-in-new-tab'
+        >
           {' '}
           Open in new Tab
         </Button>

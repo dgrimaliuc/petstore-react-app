@@ -30,19 +30,24 @@ export default function Adoption({ a }: any) {
   };
 
   return (
-    <div key={a.id} className='mt-2 border-gray-400 border p-4 rounded-md'>
+    <div
+      key={a.id}
+      className='mt-2 border-gray-400 border p-4 rounded-md'
+      data-t='single-adoption'
+    >
       <h2>
         Adoption:{' '}
         <span className='font-monospace text-gray-600'> #{a.id} </span>
       </h2>
       Status: <Pill color='orange'>{a.status}</Pill>
-      <div className='py-3 space-y-1'>
+      <div className='py-3 space-y-1' data-t='pets-list'>
         {a.pets.map((id: string) => {
           const reason = a.reasons?.find((r: any) => r.petId === id);
           return (
             <div
               key={id}
               className='border-gray-400 text-gray-600 border rounded-md ml-1 p-1.5 font-bold'
+              data-t='pet-name'
             >
               {(pets[id] || {}).name}
               {reason ? (
@@ -71,6 +76,7 @@ export default function Adoption({ a }: any) {
           }
           disabled={a.status !== 'available'}
           color='green'
+          testAttribute='approve-button'
         >
           {' '}
           Approve{' '}
@@ -86,6 +92,7 @@ export default function Adoption({ a }: any) {
           disabled={a.status !== 'available'}
           className='ml-2'
           color='red'
+          testAttribute='deny-button'
         >
           {' '}
           Deny{' '}
