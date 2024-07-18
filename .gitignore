@@ -16,6 +16,7 @@ adoptions-adoptions-requested.db
 
 # production
 /build
+.firebase
 
 # misc
 .env.local
