@@ -28,6 +28,7 @@ export default function Pets() {
   let rows = Object.values(pets).reverse() || [];
 
   const onAdd = useCallback(() => {
+    if (!name) return;
     addPet({ name, location });
     setName(randomName());
   }, [addPet, name, location]);
@@ -51,10 +52,10 @@ export default function Pets() {
                 <Button
                   onClick={onAdd}
                   className='ml-2 flex items-center'
-                  testAttribute='add-rescue'
+                  testAttribute='add-pet-button'
                 >
                   {' '}
-                  <PlusIcon className='h-6 mr-2' /> Add Rescue
+                  <PlusIcon className='h-6 mr-2' /> Add Pet
                 </Button>
               </div>
               <div className=''>
